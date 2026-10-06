@@ -1,0 +1,25 @@
+name: update
+on:
+  schedule:
+    # 09:05 and 09:20 New York (summer and winter time) = 15:05/15:20 Berlin
+    - cron: "5,20 13,14 * * 1-5"
+    # after the session, to show today's result (12:10 New York)
+    - cron: "10 16,17 * * 1-5"
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency: update
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python update.py
+      - run: |
+          git config user.name "midas-bot"
+          git config user.email "midas-bot@users.noreply.github.com"
+          git add data.json
+          git diff --cached --quiet || (git commit -m "data" && git push)
