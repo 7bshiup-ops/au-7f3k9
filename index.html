@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Midas</title>
+<meta name="robots" content="noindex,nofollow">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Midas">
+<meta name="theme-color" content="#0A0B0F">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-180.png">
+<style>
+:root{
+  --sky-top:#1C2230;--sky-bot:#0A0B0F;
+  --glass:rgba(255,255,255,.075);--glass-line:rgba(255,255,255,.10);
+  --text:#fff;--text-2:rgba(255,255,255,.72);--text-3:rgba(255,255,255,.46);
+  --down:#FF7A6E;--up:#5EE08F;--amber:#FFC266;--gold:#E9BE6A;
+  --f:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Helvetica Neue",Helvetica,Arial,sans-serif;
+  color-scheme:dark;
+}
+body.down{--sky-top:#3A1B1D;--sky-bot:#0C0A0C}
+body.up{--sky-top:#123324;--sky-bot:#090C0B}
+body.range{--sky-top:#2A2618;--sky-bot:#0B0A08}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;background:#0A0B0F}
+body{margin:0;min-height:100vh;color:var(--text);font:17px/1.35 var(--f);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;
+  background:#0A0B0F linear-gradient(180deg,var(--sky-top) 0%,var(--sky-bot) 60%) no-repeat;background-attachment:fixed;transition:background .8s;
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+.num{font-variant-numeric:tabular-nums}
+.app{max-width:480px;margin:0 auto;padding:28px 16px 44px;display:flex;flex-direction:column;gap:12px}
+.hero{text-align:center;display:flex;flex-direction:column;align-items:center;gap:3px;padding:18px 0 26px}
+.place{font-size:30px;font-weight:500}
+.temp{font-size:96px;line-height:1;font-weight:200;letter-spacing:-.045em;margin:0 0 6px}
+.cond{font-size:20px;font-weight:600;max-width:340px}
+.hl{font-size:17px;color:var(--text-2);font-weight:500}
+span.dn{color:var(--down)} span.up{color:var(--up)}
+.stale{margin-top:10px;font-size:14px;font-weight:600;color:#1A1405;background:var(--amber);border-radius:999px;padding:5px 12px}
+.mod{background:var(--glass);border:.5px solid var(--glass-line);border-radius:16px;-webkit-backdrop-filter:blur(24px) saturate(140%);backdrop-filter:blur(24px) saturate(140%);overflow:hidden}
+.mh{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--text-3);padding:11px 15px 9px;border-bottom:.5px solid var(--glass-line)}
+.mh svg{width:14px;height:14px;flex:none}
+.lv{display:grid;grid-template-columns:1fr auto;gap:2px 12px;padding:12px 15px;border-top:.5px solid var(--glass-line);align-items:baseline}
+.lv:first-of-type{border-top:0}
+.lv b{font-size:17px;font-weight:600}
+.lv .v{font-size:20px;font-weight:600;font-variant-numeric:tabular-nums;text-align:right}
+.lv .s{grid-column:1/-1;font-size:13px;color:var(--text-3)}
+.lv .p{color:var(--gold);font-weight:600}
+.strip{display:flex;overflow-x:auto;scrollbar-width:none;padding:14px 4px 16px}
+.strip::-webkit-scrollbar{display:none}
+.hr{flex:1 0 64px;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center}
+.hr .t{font-size:15px;font-weight:600}
+.hr .dot{width:26px;height:26px;display:grid;place-items:center}
+.hr .dot svg{width:22px;height:22px}
+.hr .l{font-size:13px;color:var(--text-2);line-height:1.2}
+.hr.news .l{color:var(--amber)}
+.rules{margin:0;padding:4px 15px;list-style:none;counter-reset:r}
+.rules li{counter-increment:r;display:grid;grid-template-columns:28px 1fr;gap:10px;padding:14px 0;border-top:.5px solid var(--glass-line)}
+.rules li:first-child{border-top:0}
+.rules li::before{content:counter(r);width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.12);display:grid;place-items:center;font-size:13px;font-weight:700;margin-top:1px}
+.rules li.today::before{background:var(--gold);color:#1A1405}
+.rules b{display:block;font-size:18px;font-weight:600;line-height:1.3}
+.rules span{display:block;font-size:14px;color:var(--text-3);margin-top:3px;line-height:1.35}
+.rules .fig{display:inline;margin:0;font-size:inherit;color:var(--text-2);font-weight:600}
+.side{font-size:14px;line-height:1.45;color:var(--text-3);padding:0 6px;text-align:center;margin:0}
+.foot{text-align:center;font-size:13px;color:var(--text-3);display:flex;justify-content:center;align-items:center;gap:6px;flex-wrap:wrap}
+.foot i{width:6px;height:6px;border-radius:50%;background:var(--up)}
+.rise{animation:rise .7s cubic-bezier(.2,.8,.2,1) both}
+@keyframes rise{from{opacity:.001;transform:translateY(16px)}to{opacity:1;transform:none}}
+#splash{position:fixed;inset:0;z-index:50;background:#0A0B0F;display:grid;place-items:center;transition:opacity .5s ease}
+#splash.out{opacity:0;pointer-events:none}
+.sp{display:flex;flex-direction:column;align-items:center;gap:18px;animation:settle 1.4s cubic-bezier(.2,.8,.2,1) both}
+.sp svg{width:96px;height:64px;overflow:visible}
+.sp .word{font-size:20px;font-weight:600;letter-spacing:.14em;color:rgba(255,255,255,.9);opacity:0;animation:fade .5s .7s ease forwards}
+.sp .shine{animation:shine 1.1s .45s ease-in-out both}
+@keyframes settle{from{opacity:0;transform:scale(.86)}to{opacity:1;transform:none}}
+@keyframes fade{to{opacity:1}}
+@keyframes shine{from{transform:translateX(-80px) skewX(-20deg)}to{transform:translateX(120px) skewX(-20deg)}}
+@media (prefers-reduced-motion:reduce){#splash{display:none}.rise,.sp{animation:none}body{transition:none}}
+</style>
+</head>
+<body>
+<div id="splash" aria-hidden="true"><div class="sp">
+  <svg viewBox="0 0 96 64"><defs>
+    <linearGradient id="ig" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F7DC9A"/><stop offset=".5" stop-color="#E2B45E"/><stop offset="1" stop-color="#9C7430"/></linearGradient>
+    <linearGradient id="it" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFF1C9"/><stop offset="1" stop-color="#E9C476"/></linearGradient>
+    <clipPath id="ic"><path d="M18 8 H78 L92 58 H4 Z"/></clipPath></defs>
+    <path d="M18 8 H78 L92 58 H4 Z" fill="url(#ig)"/><path d="M22 12 H74 L80 30 H16 Z" fill="url(#it)" opacity=".55"/>
+    <g clip-path="url(#ic)"><rect class="shine" x="0" y="0" width="16" height="64" fill="rgba(255,255,255,.55)"/></g></svg>
+  <div class="word">MIDAS</div></div></div>
+
+<main class="app">
+  <section class="hero rise" aria-live="polite">
+    <div class="place">Gold</div>
+    <div class="temp" id="word">—</div>
+    <div class="cond" id="cond">Loading</div>
+    <div class="hl num" id="hl"></div>
+    <div class="stale" id="stale" hidden></div>
+  </section>
+
+  <section class="mod rise" style="animation-delay:.04s">
+    <div class="mh"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M1.5 4h11M1.5 10h11"/></svg>Today's levels</div>
+    <div id="levels"></div>
+  </section>
+
+  <section class="mod rise" style="animation-delay:.08s">
+    <div class="mh"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="7" cy="7" r="5.5"/><path d="M7 4v3.2l2 1.3"/></svg><span id="sessHead">Your session</span></div>
+    <div class="strip" id="strip"></div>
+  </section>
+
+  <section class="mod rise" style="animation-delay:.12s">
+    <div class="mh"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M3 1.5h8v11l-4-2.5-4 2.5z"/></svg>Playbook</div>
+    <ol class="rules">
+      <li class="today"><div><b id="r1">Today's plan loads at 15:00.</b><span id="r1s">Built from tested levels.</span></div></li>
+      <li><div><b>Never sell while buyers hold the trend.</b><span>Gold above its last 3 days? No sells. Those trades won only <span class="fig">43%</span> and barely paid.</span></div></li>
+      <li><div><b>Your best trade: buy a dip in an uptrend.</b><span>Won <span class="fig">59%</span> of the time. Your highest profit per trade.</span></div></li>
+      <li><div><b>Stop behind the last reaction.</b><span>Just past the last supply or demand level that price reacted to on your entry timeframe. Stops placed too tight won only <span class="fig">36%</span>.</span></div></li>
+    </ol>
+  </section>
+
+  <p class="side rise" style="animation-delay:.16s">From your 396 gold backtest trades. With your 2-trade rule and <span class="num">$300</span> risk, these rules passed the Tradeify 50K test <span class="num">68%</span> of the time, versus <span class="num">59%</span> before.</p>
+
+  <div class="foot" id="foot"><i></i><span id="footTxt"></span></div>
+  <div class="foot" id="acc"></div>
+</main>
+
+<script>
+(function(){
+  "use strict";
+  var NY="America/New_York",B=null,$=function(id){return document.getElementById(id)};
+  var IC={
+    start:'<svg viewBox="0 0 22 22" fill="none" stroke="#5EE08F" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><path d="M9 7.5l5 3.5-5 3.5z" fill="#5EE08F" stroke-linejoin="round"/></svg>',
+    end:'<svg viewBox="0 0 22 22" fill="none" stroke="rgba(255,255,255,.7)" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><rect x="8" y="8" width="6" height="6" rx="1" fill="rgba(255,255,255,.7)" stroke="none"/></svg>',
+    news:'<svg viewBox="0 0 22 22" fill="none" stroke="#FFC266" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 3l9 16H2z"/><path d="M11 9v4M11 16v.5"/></svg>'
+  };
+  function nyParts(d){var f=new Intl.DateTimeFormat("en-US",{timeZone:NY,year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",hour12:false,weekday:"short"}),o={};
+    f.formatToParts(d).forEach(function(p){o[p.type]=p.value});return {y:+o.year,m:+o.month,d:+o.day,h:+o.hour%24,mi:+o.minute,wd:o.weekday,date:o.year+"-"+o.month+"-"+o.day}}
+  function nyAt(min){var p=nyParts(new Date()),g=Date.UTC(p.y,p.m-1,p.d,Math.floor(min/60),min%60),q=nyParts(new Date(g));return new Date(g-(Date.UTC(q.y,q.m-1,q.d,q.h,q.mi)-g))}
+  function hm(d){return new Intl.DateTimeFormat(undefined,{hour:"2-digit",minute:"2-digit",hour12:false}).format(d)}
+  function toMin(t){t=String(t||"").split(":");return (+t[0])*60+(+t[1]||0)}
+  function usd(n){return "$"+Number(n).toLocaleString("en-US",{maximumFractionDigits:0})}
+  function pct(n){return (n>0?"+":n<0?"−":"")+Math.abs(Number(n)).toFixed(1)+"%"}
+  function inTen(p){return Math.round(p/10)+" in 10"}
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+
+  function lv(label,val,sub){return '<div class="lv"><b>'+label+'</b><span class="v">'+val+'</span><span class="s">'+sub+'</span></div>'}
+
+  function render(){
+    var b=B,p=b&&b.plan;
+    if(!p){$("word").textContent="—";$("cond").textContent="Today's levels arrive at 15:00";strip(null);foot();return}
+    var today=nyParts(new Date()).date===b.session;
+    var near=p.nearUp?p.high:p.low, far=p.nearUp?p.low:p.high, side=p.nearUp?"high":"low";
+    var W,C,cls;
+    if(p.mode==="up"){W="Up";cls="up";C="Likely breaks above "+usd(p.high)+" · "+p.nearProb+"%"}
+    else if(p.mode==="down"){W="Down";cls="down";C="Likely breaks below "+usd(p.low)+" · "+p.nearProb+"%"}
+    else if(p.mode==="range"){W="Range";cls="range";C="Likely stays between "+usd(p.low)+" and "+usd(p.high)+" · "+p.insideProb+"%"}
+    else {W="Mixed";cls="";C="No clear side. The "+side+" "+usd(near)+" breaks about half the time"}
+    document.body.className=cls;$("word").textContent=W;$("cond").textContent=C;
+    $("hl").innerHTML=b.price?usd(b.price)+(b.chgPct!=null?'&nbsp;&nbsp;<span class="'+(b.chgPct<0?"dn":b.chgPct>0?"up":"")+'">'+pct(b.chgPct)+"</span>":""):"";
+    var L="";
+    L+=lv("Target: "+side+" since last night",usd(near),'<span class="p">Breaks '+p.nearProb+"%</span> of past sessions like this");
+    L+=lv("Line: "+(p.nearUp?"low":"high")+" since last night",usd(far),'<span class="p">Holds '+p.farProb+"%</span> · "+(p.nearUp?"stay above it":"stay below it"));
+    L+=lv("Safe stop zone",usd(p.safe),'<span class="p">Held '+inTen(p.safeProb)+"</span> · stops "+(p.nearUp?"below":"above")+" this rarely get hit");
+    L+=lv("Session move","about "+usd(p.range.typ),'<span class="p">8 in 10</span> sessions move '+usd(p.range.lo)+"–"+usd(p.range.hi)+" high to low");
+    $("levels").innerHTML=L;
+    var P;
+    if(p.mode==="up")P=["Look for buys. Target "+usd(p.high)+".","Price is close to the high since last night. From here it broke in "+p.nearProb+"% of past sessions. Keep stops below "+usd(p.safe)+"."];
+    else if(p.mode==="down")P=["Look for sells. Target "+usd(p.low)+".","Price is close to the low since last night. From here it broke in "+p.nearProb+"% of past sessions. Keep stops above "+usd(p.safe)+". Check rule 2 first."];
+    else if(p.mode==="range")P=["Trade the edges: "+usd(p.low)+" – "+usd(p.high)+".","Both sides held in "+p.insideProb+"% of past sessions like this. Buy near the low, sell near the high."];
+    else P=["No clear side. Only your A-setup.","Price is in the middle. The "+side+" "+usd(near)+" breaks about half the time. Wait for it to break or hold first."];
+    $("r1").textContent=P[0];$("r1s").textContent=P[1];
+    var st=$("stale"),n=nyParts(new Date()),wk=n.wd==="Sat"||n.wd==="Sun",mins=n.h*60+n.mi;
+    var old=!wk&&!today&&mins>=585;st.hidden=!old;if(old)st.textContent="Not updated yet today. Check the chart yourself.";
+    strip(b);foot();
+  }
+  function strip(b){
+    var S0=570,E0=720,items=[{m:S0,i:IC.start,l:"Start"}],seen={};
+    (b&&nyParts(new Date()).date===b.session&&b.events||[]).forEach(function(e){var m=toMin(e.t);if(m>S0&&m<E0&&!seen[m]){seen[m]=1;items.push({m:m,i:IC.news,l:(e.impact==="high"?"Big news":"News")+"<br>stay out",cls:"news",n:e.name})}});
+    items.push({m:E0,i:IC.end,l:"End"});items.sort(function(a,c){return a.m-c.m});
+    $("strip").innerHTML=items.map(function(x){return '<div class="hr '+(x.cls||"")+'"'+(x.n?' title="'+esc(x.n)+'"':"")+'><span class="t num">'+hm(nyAt(x.m))+'</span><span class="dot">'+x.i+'</span><span class="l">'+x.l+"</span></div>"}).join("");
+    var n=nyParts(new Date()),mins=n.h*60+n.mi,wk=n.wd==="Sat"||n.wd==="Sun",h=$("sessHead");
+    h.textContent=wk?"Weekend. No trading":mins<S0?"Session starts in "+dur(S0-mins):mins<=E0?"Session live. "+dur(E0-mins)+" left":"Session closed for today";
+  }
+  function dur(m){var h=Math.floor(m/60),r=m%60;return h?h+"h "+r+"m":r+" min"}
+  function foot(){
+    if(!B){$("footTxt").textContent="";return}
+    var d=new Date(Date.parse(B.asOf)),today=nyParts(new Date()).date===nyParts(d).date;
+    $("footTxt").textContent="Updated "+(today?"today ":new Intl.DateTimeFormat(undefined,{weekday:"short"}).format(d)+" ")+hm(d);
+    var t=B.track,a="Rules tested on "+(B.tested||1417).toLocaleString("en-US")+" past sessions";
+    if(t&&t.n)a+=" · Last "+t.n+" sessions: line held "+t.farHeld+"/"+t.n+", safe zone "+t.safeHeld+"/"+t.n+(t.called?", call right "+t.callRight+"/"+t.called:"");
+    var r=B.result;if(r&&nyParts(new Date()).date===B.session)a="Today: "+(r.callRight===true?"call right":r.callRight===false?"call wrong":"no call")+", line "+(r.farHeld?"held":"broke")+" · "+a;
+    $("acc").textContent=a;
+  }
+  function load(){
+    fetch("data.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json()}).then(function(j){B=j;render()}).catch(function(){if(!B){$("cond").textContent="Could not load. Pull to refresh."}});
+  }
+  function done(){var s=$("splash");s.classList.add("out");setTimeout(function(){s.hidden=true},550)}
+  setTimeout(done,1400);$("splash").addEventListener("click",done);
+  load();setInterval(function(){strip(B);foot()},30000);
+  document.addEventListener("visibilitychange",function(){if(!document.hidden)load()});
+})();
+</script>
+</body>
+</html>
