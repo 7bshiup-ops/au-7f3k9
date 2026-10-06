@@ -5,7 +5,7 @@ Rules were measured on 1,417 past sessions (GC futures May 2024-Oct 2026 and
 PAX Gold spot 2021-2024). Setup is taken from hourly bars before 09:00 New York;
 results are measured on the 09:00-12:00 New York bars (session 09:30-12:00).
 """
-import json, os, statistics, sys, urllib.request
+import json, os, statistics, sys, time, urllib.request
 from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 
@@ -23,10 +23,36 @@ SAFE_PCT = 90
 RANGE_LO, RANGE_TYP, RANGE_HI = 0.56, 0.94, 1.85   # session high-low vs typical move; 80% band held 78-80%
 
 
-def get(url):
-    req = urllib.request.Request(url, headers=UA)
-    with urllib.request.urlopen(req, timeout=30) as r:
-        return json.load(r)
+_S = None
+
+
+def get(url, tries=4):
+    """Fetch JSON like a normal Chrome browser (plain Python clients get HTTP 429 from Yahoo)."""
+    global _S
+    last = None
+    for n in range(tries):
+        try:
+            try:
+                from curl_cffi import requests as cr
+                if _S is None:
+                    _S = cr.Session(impersonate="chrome")
+                    try:
+                        _S.get("https://fc.yahoo.com", timeout=20)
+                    except Exception:
+                        pass
+                r = _S.get(url, timeout=30)
+                if r.status_code == 429:
+                    raise RuntimeError("429")
+                r.raise_for_status()
+                return r.json()
+            except ImportError:
+                req = urllib.request.Request(url, headers=UA)
+                with urllib.request.urlopen(req, timeout=30) as r:
+                    return json.load(r)
+        except Exception as e:  # noqa
+            last = e
+            time.sleep(8 * (n + 1))
+    raise last
 
 
 def yahoo(sym, rng, interval):
@@ -128,7 +154,7 @@ def grade(s, d):
 
 def news(today):
     try:
-        ev = get("https://nfs.faireconomy.media/ff_calendar_thisweek.json")
+        ev = get("https://nfs.faireconomy.media/ff_calendar_thisweek.json", tries=2)
     except Exception:
         return None
     out = []
